@@ -1,16 +1,25 @@
 package application
 
 import (
+	"agahi/internal/entity/users"
+	"agahi/internal/platform/repository"
 	"context"
+	"errors"
+	"github.com/gorilla/mux"
 	log "github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"net/http"
 )
 
 type App struct {
 	DB struct {
 		Mongo *mongo.Database
 	}
+	Repository struct {
+		UserRepo users.Repository
+	}
+	Router *mux.Router
 }
 
 // NewApp sets up a new application instance
@@ -20,6 +29,13 @@ func NewApp() *App {
 	if err := app.RegisterMongo(); err != nil {
 		log.Fatal("Connection Failed!")
 	}
+	if err := app.RegisterUserRepo(); err != nil {
+		log.Fatal(err)
+	}
+	if err := app.RegisterRouter(); err != nil {
+		log.Fatal(err)
+	}
+	app.RegisterRoutes()
 	return app
 }
 
@@ -43,4 +59,33 @@ func (a *App) RegisterMongo() error {
 
 	log.Debug("Database Connected Successfully.")
 	return nil
+}
+
+// RegisterUserRepo Registers Users Repository to Contact with Database.
+// to Create or Make Changes or Delete Users
+func (a *App) RegisterUserRepo() error {
+	if a.DB.Mongo == nil {
+		return errors.New("can't Connect to Database")
+	}
+	a.Repository.UserRepo = repository.UserRepo{DB: a.DB.Mongo}
+	return nil
+}
+
+// RegisterRouter Make a Router with mux package
+func (a *App) RegisterRouter() error {
+	a.Router = mux.NewRouter()
+	return nil
+}
+
+// RunRouter Run and Serve the Router that Created with mux
+func (a *App) RunRouter() {
+	httpListener := &http.Server{
+		Addr:    ":3000",
+		Handler: a.Router,
+	}
+	log.Println("Router is Running...")
+	log.Println("Server Started On Port 3000")
+	if err := httpListener.ListenAndServe(); err != nil {
+		log.Fatal(err)
+	}
 }
