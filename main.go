@@ -12,6 +12,6 @@ func init() {
 
 func main() {
 	//create a new instance of Application
-	application.NewApp()
-
+	app := application.NewApp()
+	app.RunRouter()
 }
