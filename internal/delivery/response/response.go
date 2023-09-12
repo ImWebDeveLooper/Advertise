@@ -2,6 +2,7 @@ package response
 
 import (
 	"encoding/json"
+	"github.com/gin-gonic/gin"
 	"net/http"
 )
 
@@ -12,69 +13,69 @@ type Response struct {
 	ErrorMessage string      `json:"error_message,omitempty"`
 }
 
-func ErrorResponse(w http.ResponseWriter, resp Response) {
+func ErrorResponse(c *gin.Context, resp Response) {
 	jData, err := json.Marshal(resp)
 	if err != nil {
-		BadRequest(w)
+		BadRequest(c)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
-	_, err = w.Write(jData)
+	c.Header("Content-Type", "application/json")
+	_, err = c.Writer.Write(jData)
 	if err != nil {
 		return
 	}
 }
-func BadRequest(w http.ResponseWriter) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusBadRequest)
+func BadRequest(c *gin.Context) {
+	c.Header("Content-Type", "application/json")
+	c.Status(http.StatusBadRequest)
 }
 
-func InternalServerError(w http.ResponseWriter) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusInternalServerError)
+func InternalServerError(c *gin.Context) {
+	c.Header("Content-Type", "application/json")
+	c.Status(http.StatusInternalServerError)
 }
 
-func CreateResponse(w http.ResponseWriter, resp Response) {
+func CreateResponse(c *gin.Context, resp Response) {
 	jData, err := json.Marshal(resp)
 	if err != nil {
-		BadRequest(w)
+		BadRequest(c)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	_, err = w.Write(jData)
+	c.Header("Content-Type", "application/json")
+	c.Status(http.StatusCreated)
+	_, err = c.Writer.Write(jData)
 	if err != nil {
 		return
 	}
 }
 
-func OKResponse(w http.ResponseWriter, resp Response) {
+func OKResponse(c *gin.Context, resp Response) {
 	jData, err := json.Marshal(resp)
 	if err != nil {
-		BadRequest(w)
+		BadRequest(c)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	_, err = w.Write(jData)
+	c.Header("Content-Type", "application/json")
+	c.Status(http.StatusOK)
+	_, err = c.Writer.Write(jData)
 	if err != nil {
 		return
 	}
 }
 
-func DeleteResponse(w http.ResponseWriter) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusNoContent)
+func DeleteResponse(c *gin.Context) {
+	c.Header("Content-Type", "application/json")
+	c.Status(http.StatusNoContent)
 }
 
-func NotFound(w http.ResponseWriter) {
+func NotFound(c *gin.Context) {
 	resp, err := json.Marshal(Response{Message: "404 Not found"})
 	if err != nil {
-		BadRequest(w)
+		BadRequest(c)
 		return
 	}
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusNotFound)
-	_, err = w.Write(resp)
+	c.Header("Content-Type", "application/json")
+	c.Status(http.StatusNotFound)
+	_, err = c.Writer.Write(resp)
 	return
 }
