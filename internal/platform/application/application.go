@@ -5,11 +5,10 @@ import (
 	"agahi/internal/platform/repository"
 	"context"
 	"errors"
-	"github.com/gorilla/mux"
+	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"net/http"
 )
 
 type App struct {
@@ -19,7 +18,7 @@ type App struct {
 	Repository struct {
 		UserRepo users.Repository
 	}
-	Router *mux.Router
+	Router *gin.Engine
 }
 
 // NewApp sets up a new application instance
@@ -73,19 +72,17 @@ func (a *App) RegisterUserRepo() error {
 
 // RegisterRouter Make a Router with mux package
 func (a *App) RegisterRouter() error {
-	a.Router = mux.NewRouter()
+	gin.SetMode(gin.ReleaseMode)
+	a.Router = gin.Default()
 	return nil
 }
 
 // RunRouter Run and Serve the Router that Created with mux
 func (a *App) RunRouter() {
-	httpListener := &http.Server{
-		Addr:    ":3000",
-		Handler: a.Router,
-	}
+	router := a.Router
 	log.Println("Router is Running...")
 	log.Println("Server Started On Port 3000")
-	if err := httpListener.ListenAndServe(); err != nil {
+	if err := router.Run(":3000"); err != nil {
 		log.Fatal(err)
 	}
 }

@@ -6,28 +6,27 @@ import (
 	"agahi/internal/entity/users"
 	"agahi/internal/platform/msg"
 	"agahi/internal/usecase"
-	"encoding/json"
+	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
-	"net/http"
 )
 
-func RegisterUserAction(repo users.Repository) http.HandlerFunc {
-	return func(w http.ResponseWriter, req *http.Request) {
+func RegisterUserAction(repo users.Repository) gin.HandlerFunc {
+	return func(c *gin.Context) {
 		var uDto dto.RegisterUserRequest
-		err := json.NewDecoder(req.Body).Decode(&uDto)
+		err := c.ShouldBindJSON(&uDto)
 		if err != nil {
-			response.BadRequest(w)
-			response.ErrorResponse(w, response.Response{ErrorMessage: err.Error()})
+			response.BadRequest(c)
+			response.ErrorResponse(c, response.Response{ErrorMessage: err.Error()})
 			log.Error(err)
 			return
 		}
 		err = usecase.Register(repo, uDto)
 		if err != nil {
-			response.InternalServerError(w)
-			response.ErrorResponse(w, response.Response{ErrorMessage: err.Error()})
+			response.InternalServerError(c)
+			response.ErrorResponse(c, response.Response{ErrorMessage: err.Error()})
 			log.Error(err)
 			return
 		}
-		response.CreateResponse(w, response.Response{Message: msg.RegisterMessage})
+		response.CreateResponse(c, response.Response{Message: msg.RegisterMessage})
 	}
 }
