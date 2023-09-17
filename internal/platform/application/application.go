@@ -70,14 +70,14 @@ func (a *App) RegisterUserRepo() error {
 	return nil
 }
 
-// RegisterRouter Make a Router with mux package
+// RegisterRouter Make a Router with Gin Web Framework
 func (a *App) RegisterRouter() error {
 	gin.SetMode(gin.ReleaseMode)
 	a.Router = gin.Default()
 	return nil
 }
 
-// RunRouter Run and Serve the Router that Created with mux
+// RunRouter Run and Serve the Router that Created with Gin
 func (a *App) RunRouter() {
 	router := a.Router
 	log.Println("Router is Running...")
